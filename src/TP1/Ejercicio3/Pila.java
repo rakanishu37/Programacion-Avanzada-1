@@ -1,4 +1,4 @@
-package Ejercicio3;
+package TP1.Ejercicio3;
 
 public class Pila<T> {
     private Node<T> lista;

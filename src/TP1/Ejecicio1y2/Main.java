@@ -1,4 +1,4 @@
-package Ejecicio1y2;
+package TP1.Ejecicio1y2;
 
 public class Main {
     public static void main(String[] args) {
