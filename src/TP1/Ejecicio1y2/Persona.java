@@ -30,7 +30,10 @@ public class Persona implements Comparable{
 
     @Override
     public int compareTo(Object x) {
-        Persona o = (Persona)x;
+        if (!(x instanceof Persona)){
+			return -1;
+		}
+		Persona o = (Persona)x;
         if(this.salario>o.getSalario()){
             return 1;
         }
