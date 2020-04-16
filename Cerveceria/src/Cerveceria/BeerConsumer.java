@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class BeerConsumer implements Runnable{
     private BeerHouse inventory;
-
+    private boolean abierto = true;
     public BeerConsumer(BeerHouse inventory) {
         this.inventory = inventory;
     }
@@ -12,12 +12,12 @@ public class BeerConsumer implements Runnable{
     @Override
     public void run() {
         Random beersBought = new Random();
-        while(true){
+        while(abierto){
             try{
                 inventory.consumeBeer(beersBought.nextInt(10)+1);
-            } catch (IllegalStateException e) {
+            } catch (Throwable e) {
                 System.out.println(e.getMessage());
-                break;
+                this.abierto = false;
             }
         }
     }

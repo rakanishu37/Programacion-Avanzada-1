@@ -5,6 +5,7 @@ import java.util.Random;
 public class BeerHouse {
 	private final int MAX_STOCK = 100;
 	private boolean available = false;
+	private boolean outOfMaterials = false;
 	private int stock = 0;
 	Random producingCapacityBeers;
 
@@ -12,10 +13,10 @@ public class BeerHouse {
 		this.producingCapacityBeers = producingCapacityBeers;
 	}
 
-	public synchronized void produceBeer() {
+	public synchronized void produceBeer() throws Throwable {
 		int quantity = producingCapacityBeers.nextInt(25) + 1;
 		int newStock = 0;
-		//while (this.stock == 100) {
+
 		while (available) {
 			try {
 				this.wait();
@@ -24,6 +25,7 @@ public class BeerHouse {
 			}
 		}
 		available = true;
+
 		newStock = (this.stock + quantity);
 		if (newStock <= this.MAX_STOCK) {
 		    this.stock = newStock;
@@ -33,12 +35,15 @@ public class BeerHouse {
 			this.stock = this.MAX_STOCK;
 			System.out.println(newStock - this.MAX_STOCK + " beers have been produced");
 			System.out.println("Stock is now full, it has " + this.stock + " beers");
+			outOfMaterials = true;
 		}
 		this.notify();
+		if(outOfMaterials){
+			throw new Throwable("No hay mas materiales para producir");
+		}
 	}
 
-	public synchronized void consumeBeer(int quantityDrank) throws IllegalStateException {
-		//while (this.stock == 0) {
+	public synchronized void consumeBeer(int quantityDrank) throws Throwable {
 		while (!available) {
 			try {
 				this.wait();
@@ -46,7 +51,6 @@ public class BeerHouse {
 				e.printStackTrace();
 			}
 		}
-		available = false;
 
 		if(quantityDrank > stock){
 		    quantityDrank = stock;
@@ -57,11 +61,13 @@ public class BeerHouse {
         }
 
 		System.out.println(quantityDrank + " beers has drank.");
-        if(this.stock == 0){
-            available = true;
-            throw new IllegalStateException("No hay mas cervezas");
-        }
+		if(this.stock == 0 && outOfMaterials){
+			throw new Throwable("No hay mas cervezas");
+		}
 		System.out.println("Stock has: " + this.stock + " beers.");
-		this.notify();
+		if(!outOfMaterials){
+			available = false;
+			this.notify();
+		}
 	}
 }
